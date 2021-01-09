@@ -4,6 +4,7 @@
 logs
 **/*.backup.*
 **/*.back.*
+.eslintcache
 
 node_modules
 bower_components
