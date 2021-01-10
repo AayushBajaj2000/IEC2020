@@ -1,3 +1,5 @@
+Download the iec folder and then use react to run the app on the localhost steps are given below:
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
