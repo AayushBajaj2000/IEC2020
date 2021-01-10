@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu } from 'semantic-ui-react';
 import { useStateValue } from "../StateProvider";
 
 function MainMenu() {
+    const menuOpt = [
+        {name:'Home', link:"/"}, 
+        {name:'Wow', link:"/wow"}
+    ];
     const [test, dispatch] = useStateValue();
     const [logout, setLogout] = useState(false); 
-    const [actv, setActv] = useState("home");
+    const [actv, setActv] = useState("Home");
+
+    const handleMenuClick = (e, data) => {
+        setActv(data.name);
+    }
 
     const handleLogout = () => {
         setLogout(true)
     }
 
-    const handleMenuClick = (e, name) => {
-        setActv(name)
-        if (name === "logout"){
-            handleLogout();
-        }
-    }
-    
     useEffect(() => {
         /*
         dispatch({
@@ -25,24 +27,32 @@ function MainMenu() {
         item: a
         });
         */ 
-    }, [])
+    }, []);
+
+
+    const headings = menuOpt.map(label => (
+        <Link to={label.link}>
+            <Menu.Item
+                name={label.name}
+                active={actv === label.name}
+                onClick={handleMenuClick}
+            />
+        </Link>
+    ));
+
     return (
         <div>
             <Menu pointing secondary>
-                <Menu.Item
-                    name='Home'
-                    active={actv === 'home'}
-                    onClick={handleMenuClick}
-                />
+                {headings}
                 <Menu.Menu position='right'>
                     <Menu.Item
                         name='My Account'
-                        active={actv === 'user'}
+                        active={actv === 'My Account'}
                         onClick={handleMenuClick}
                     />
                     <Menu.Item
                         name='Logout'
-                        active={actv === 'logout'}
+                        active={actv === 'Logout'}
                         onClick={handleMenuClick}
                     />
                 </Menu.Menu>
