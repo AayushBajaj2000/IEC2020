@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu } from 'semantic-ui-react';
-
+import { useStateValue } from "../StateProvider";
 
 function MainMenu() {
+    const [test, dispatch] = useStateValue();
     const [logout, setLogout] = useState(false); 
     const [actv, setActv] = useState("home");
 
@@ -16,7 +17,15 @@ function MainMenu() {
             handleLogout();
         }
     }
-
+    
+    useEffect(() => {
+        /*
+        dispatch({
+        type: "Add_test",
+        item: a
+        });
+        */ 
+    }, [])
     return (
         <div>
             <Menu pointing secondary>
