@@ -1,0 +1,10 @@
+.center{
+    display: flex;
+    text-align: center !important;
+    align-items: center !important;
+}
+.container{
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
