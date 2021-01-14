@@ -3,7 +3,8 @@ export const initialState = {
   user: null,
   credit: 0,
   points: 0,
-  barcode: 0
+  barcode: 0,
+  barcode__scanned: 0
 };
 
 // This is the component that is used to get the state in all the components in react 
@@ -28,6 +29,11 @@ const reducer = (state, action) => {
       return {
         ...state,
         barcode: action.item
+      };
+    case "Add_barcode_Scanned":
+      return {
+        ...state,
+        barcode__scanned: action.item
       };
     default:
       return state;

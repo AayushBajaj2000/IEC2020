@@ -7,6 +7,7 @@ import CurrentPoints from './CurrentPoints';
 import BuyItems from './BuyItems';
 import MyAccount from './MyAccount';
 import { useStateValue } from "./StateProvider";
+import BarcodeScanner from './mainComponents/BarcodeScanner';
 
 function App() {
   const [{ user }] = useStateValue();
@@ -34,8 +35,12 @@ function App() {
             user == null ? <MainPage /> : <MyAccount />
           }
         </Route>
-
-        <Route path='/:x' exact>
+        <Route path='/barcode_Scanner' exact>
+          <div>
+            <BarcodeScanner />
+          </div>
+        </Route>
+        <Route path='/:barcodeID' exact>
           <div>
             <p>404 Page not found</p>
           </div>
