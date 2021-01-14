@@ -1,0 +1,14 @@
+.main{
+    align-items: center;
+    font-size: 32px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - 37px);
+    text-align: center;
+    background-image: url(./identity.jpg);
+    background-size: 70vh 70vh;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 20px;
+}   

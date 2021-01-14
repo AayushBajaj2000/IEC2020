@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Statistic, Container, Button, Form, Progress, Grid, Input } from 'semantic-ui-react';
+import { Card, Container, Button, Form, Input } from 'semantic-ui-react';
 import { useStateValue } from "./StateProvider";
 import { db } from './firebase';
 import "./MyAccount.css";
@@ -7,6 +7,7 @@ import "./MyAccount.css";
 // The component function for the Myaccount
 
 export default function MyAccount() {
+
     // functions for the myaccount
     const [{ user, credit, points }, dispatch] = useStateValue();
     const [funds, setFunds] = useState(0);
@@ -15,9 +16,6 @@ export default function MyAccount() {
     const [expire, setExpire] = useState('');
     const [ccv, setCcv] = useState('');
 
-    const handleFunds = (data) => {
-        setFunds(data);
-    }
     const handleName = (val) => {
         setName(val);
     }
@@ -31,23 +29,28 @@ export default function MyAccount() {
         setCcv(val);
     }
 
-
     //update account
     let usr = db.collection("Accounts").doc(user?.Barcode_Number.toString());
+    console.log(usr);
 
     // ADD FUNDS TO CREDIT
     const handleAddFundsSubmit = () => {
-        let newFunds = parseFloat(user?.Total_Credit) + parseFloat(funds.value);
-        usr.update({
-            Total_Credit: newFunds
-        }).then(() => {
-            console.log("Updated funds");
-        });
-        dispatch({
-            type: "Add_credit",
-            item: newFunds
-        });
-        setFunds(0);
+        if (funds.value > 0) {
+            let newFunds = parseFloat(credit) + parseFloat(funds.value);
+            usr.update({
+                Total_Credit: newFunds
+            }).then(() => {
+                console.log("Updated funds");
+            });
+            dispatch({
+                type: "Add_credit",
+                item: newFunds
+            });
+            setFunds(0);
+        } else {
+            alert("Please input the right amount");
+        }
+
     }
 
     const handleAddCardSubmit = () => {
@@ -61,9 +64,24 @@ export default function MyAccount() {
     return (
         <div className="center">
             <Container>
-                <h3>Name : {user?.name}</h3>
-                <h3>Email : {user?.Email}</h3>
-                <h3>Points Available : {points}</h3>
+                <Card>
+                    <Card.Content>
+                        <Card.Header>Name</Card.Header>
+                        <Card.Description>{user?.name}</Card.Description>
+                    </Card.Content>
+                </Card>
+                <Card>
+                    <Card.Content>
+                        <Card.Header>Email</Card.Header>
+                        <Card.Description>{user?.Email}</Card.Description>
+                    </Card.Content>
+                </Card>
+                <Card>
+                    <Card.Content>
+                        <Card.Header>Points Available</Card.Header>
+                        <Card.Description>{points}</Card.Description>
+                    </Card.Content>
+                </Card>
                 <Card>
                     <Card.Content>
                         <Card.Header>Add Funds</Card.Header>

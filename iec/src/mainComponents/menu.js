@@ -1,138 +1,157 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import { useStateValue } from "../StateProvider";
-import { Menu, Button, Header, Image, Modal, Input } from 'semantic-ui-react';
+import { Menu, Button, Modal, Input } from 'semantic-ui-react';
 import { db, auth } from '../firebase';
 import '../index.css';
 
 function MainMenu() {
 
-    // menu options for the semantic ui navbar
+    // The variable which will be used to navigate to diferent pages 
+    let history = useHistory();
+    // Menu options for the semantic ui navbar
     const menuOpt = [
         { name: 'Home', link: "/" },
     ];
-
-    // All the state options that we use for dealing with all the variables 
+    // Getting the user and the dispatch function from the stateprovider or ContextAPI
     const [{ user }, dispatch] = useStateValue();
-    const [logout, setLogout] = useState(false);
+    // Used for semantic-ui navbar to show which tab is active
     const [actv, setActv] = useState("Home");
+    // Used for opening the modal for the signup
     const [open1, setOpen1] = useState(false);
+    // Used for opening the modal for the login
     const [open2, setOpen2] = useState(false);
+    // Used for getting their name from the input
     const [name, setName] = useState("");
+    // Used for getting their email from the input
     const [email, setEmail] = useState("");
+    // Used for getting their password from the input
     const [password, setPassword] = useState("");
 
     // Function for opening the modal for signup
     const handleOpen1 = () => {
         setOpen1(true)
     }
-
     // Function for opening the modal for the login
     const handleOpen2 = () => {
         setOpen2(true)
     }
-
     // Function for handling the signup
     const handleSignup = (event) => {
+        // preventing the refresh when we click the login button
         event.preventDefault();
-
-        // firebase function for creating a user with the email and the password
+        // Firebase function for creating a user with the email and the password that they entered
         auth.createUserWithEmailAndPassword(email.value, password.value)
-            .catch((error) => alert(error.message));
-
-        // adding user to the state for the whole app
-        dispatch({
-            type: "Add_user",
-            item: email.value
-        });
-
-        // The random barcode generated
-        var bc_number = Math.floor(Math.random() * 1000000000);
-
-        // Firebase databse adding the name and all the stuff that we need 
-        db.collection("Accounts").doc(bc_number.toString()).set({
-            name: name.value,
-            Email: email.value,
-            Total_Credit: 0,
-            Total_Points: 0,
-            Barcode_Number: bc_number
-        })
-            .then(function () {
-                console.log("Document successfully written!");
+            .then((user) => {
+                // Now the user is created
+                // The random barcode generated which will be used by Barcode.js to generate a barcode
+                var bc_number = Math.floor(Math.random() * 1000000000);
+                // Adding the user with all their information to the firebase database  
+                db.collection("Accounts").doc(bc_number.toString()).set({
+                    name: name.value,
+                    Email: email.value,
+                    Total_Credit: 0,
+                    Total_Points: 0,
+                    Barcode_Number: bc_number
+                })
+                    .then(function () {
+                        //The user is added successfully
+                        console.log("User successfully added!");
+                        //Adding the user with their information to the stateprovider
+                        dispatch({
+                            type: "Add_user",
+                            item: {
+                                name: name.value,
+                                Email: email.value,
+                                Total_Credit: 0,
+                                Total_Points: 0,
+                                Barcode_Number: bc_number
+                            }
+                        });
+                    })
+                    .catch(function (error) {
+                        // If there is an error in adding the user
+                        console.error("Error in adding the user to the database: ", error);
+                    });
             })
-            .catch(function (error) {
-                console.error("Error writing document: ", error);
+            .catch((error) => {
+                // If there is an error in creating the user
+                alert("Error in creating the user : ", error.message);
             });
-
-        dispatch({
-            type: "Add_user",
-            item: {
-                name: name.value,
-                Email: email.value,
-                Total_Credit: 0,
-                Total_Points: 0,
-                Barcode_Number: bc_number
-            }
-        });
         // closing the modal
         setOpen1(false);
     }
 
-    // handling the logout for the user
+    // Handling the logout for the user
     const handleLogout = () => {
+        // Setting the user to null in the stateprovider which changes what is rendered
         dispatch({
             type: "Add_user",
             item: null
         });
-    }
-
-    //  handling the signin for the user
-    const handleSignin = (event) => {
-        event.preventDefault();
-
-        // Authentication for firebase for signing in
-        auth.signInWithEmailAndPassword(email.value, password.value)
-            .catch((error) => alert(error.message));
-
         dispatch({
-            type: "Add_user",
-            item: email.value
+            type: "Add_credit",
+            item: 0
         });
-
-        // Now we are adding the user to the database
-        db.collection("Accounts")
-            .get()
-            .then(function (querySnapshot) {
-                querySnapshot.forEach(function (doc) {
-                    // doc.data() is never undefined for query doc snapshots
-                    if (doc.data().Email == email.value) {
-                        dispatch({
-                            type: "Add_user",
-                            item: doc.data()
-                        });
-                        dispatch({
-                            type: "Add_credit",
-                            item: doc.data().Total_Credit
-                        });
-                        dispatch({
-                            type: "Add_points",
-                            item: doc.data().Total_Points
-                        });
-                    }
-                });
-            })
-            .catch(function (error) {
-                console.log("Error getting documents: ", error);
-            });
-
-        // Setting the password and email to be null 
-        setEmail("");
-        setPassword("");
-
-        // closing the modal
-        setOpen2(false);
+        dispatch({
+            type: "Add_points",
+            item: 0
+        });
+        // Go to the main page when the user has logged out
+        history.push("./");
     }
 
+    //  Handling the signin for the user
+    const handleSignin = (event) => {
+        // Preventing the default behaviour of the button
+        event.preventDefault();
+        // Signing the user in using firebase authentication
+        auth.signInWithEmailAndPassword(email.value, password.value)
+            .then((user) => {
+                // The user is signed in
+                // Getting the users information from the database according to their email
+                db.collection("Accounts")
+                    .get()
+                    .then(function (querySnapshot) {
+                        // Looping through each document 
+                        querySnapshot.forEach(function (doc) {
+                            // doc.data() is never undefined for query doc snapshots
+                            //Checking if the email the user entered is the same as their email in the database to get their information
+                            if (doc.data().Email === email.value) {
+                                // Adding the object which contains all the information about the user to the stateprovider
+                                dispatch({
+                                    type: "Add_user",
+                                    item: doc.data()
+                                });
+                                // Adding the total credit that the user has to the stateprovider
+                                dispatch({
+                                    type: "Add_credit",
+                                    item: doc.data().Total_Credit
+                                });
+                                // Adding the total points that the user has to the stateprovider
+                                dispatch({
+                                    type: "Add_points",
+                                    item: doc.data().Total_Points
+                                });
+                            }
+                        });
+                        //Closing the login modal
+                        setOpen2(false);
+                        // Setting the password and email to be null 
+                        setEmail("");
+                        setPassword("");
+                    })
+                    .catch(function (error) {
+                        // We can not get the documents from the database
+                        console.log("Error getting documents: ", error);
+                    });
+            })
+            .catch((error) => {
+                // If the user has entered any wrong email or password then they get a message
+                alert(error.message);
+            });
+    }
+    // headings function which we use to display the navbar links at the start
     const headings = menuOpt.map(label => (
         <Link to={label.link}>
             <Menu.Item
@@ -141,12 +160,14 @@ function MainMenu() {
             />
         </Link>
     ));
-
     // returns the rendered component
     return (
         <div>
+            {/*Menu component from semantic-ui*/}
             <Menu pointing secondary color={'blue'} inverted>
+                {/* Displaying the headings */}
                 {headings}
+                {/* Displaying the navbar position on the right */}
                 <Menu.Menu position='right'>
                     <Link to={"/myaccount"}>
                         {
@@ -162,15 +183,18 @@ function MainMenu() {
                         user === null ?
                             <Menu.Item
                                 name={"Login"}
+                                active={actv === 'Login'}
                                 onClick={handleOpen2}
                             /> :
                             <Menu.Item
                                 name={'Logout'}
+                                active={actv === 'Logout'}
                                 onClick={handleLogout}
                             />
                     }
                     <Menu.Item
                         name={"Signup"}
+                        active={actv === 'Signup'}
                         onClick={handleOpen1}
                     />
                 </Menu.Menu>
@@ -180,18 +204,21 @@ function MainMenu() {
                 onClose={() => setOpen1(false)}
                 onOpen={() => setOpen1(true)}
                 open={open1}
+                className="modal__login"
             >
-                <Modal.Header>Sign Up </Modal.Header>
+                <Modal.Header className="modal__heading">Sign Up </Modal.Header>
                 <Modal.Content>
                     <Modal.Description>
-                        <label className="modalLab">Name</label>
-                        <Input placeholder='Name' value={name.value} onChange={(e, data) => setName(data)} />
-                        <br /> <br />
-                        <label className="modalLab">Email</label>
-                        <Input placeholder='Email' value={email.value} onChange={(e, data) => setEmail(data)} />
-                        <br /> <br />
-                        <label className="modalLab">Passowrd</label>
-                        <Input placeholder='password' type="password" value={password.value} onChange={(e, data) => setPassword(data)} />
+                        <div className="modal__main">
+                            <label className="modal__label">Name</label>
+                            <Input placeholder='Name' value={name.value} onChange={(e, data) => setName(data)} />
+                            <br /> <br />
+                            <label className="modal__label">Email</label>
+                            <Input placeholder='Email' value={email.value} onChange={(e, data) => setEmail(data)} />
+                            <br /> <br />
+                            <label className="modal__label">Password</label>
+                            <Input placeholder='password' type="password" value={password.value} onChange={(e, data) => setPassword(data)} />
+                        </div>
                     </Modal.Description>
                 </Modal.Content>
                 <Modal.Actions>
@@ -209,15 +236,18 @@ function MainMenu() {
                 onClose={() => setOpen2(false)}
                 onOpen={() => setOpen2(true)}
                 open={open2}
+                className="modal__login"
             >
-                <Modal.Header>Login</Modal.Header>
+                <Modal.Header className="modal__heading">Login</Modal.Header>
                 <Modal.Content>
                     <Modal.Description>
-                        <label className="modalLab">Email</label>
-                        <Input placeholder='Email' value={email.value} onChange={(e, data) => setEmail(data)} />
-                        <br /> <br />
-                        <label className="modalLab">Password</label>
-                        <Input placeholder='password' type="password" value={password.value} onChange={(e, data) => setPassword(data)} />
+                        <div className="modal__main">
+                            <label className="modal__label">Email</label>
+                            <Input placeholder='Email' value={email.value} onChange={(e, data) => setEmail(data)} />
+                            <br /> <br />
+                            <label className="modal__label">Password</label>
+                            <Input placeholder='password' type="password" value={password.value} onChange={(e, data) => setPassword(data)} />
+                        </div>
                     </Modal.Description>
                 </Modal.Content>
                 <Modal.Actions>

@@ -1,33 +1,34 @@
-import React, { useState } from 'react';
-import { Card, Statistic, Container, Button, Form, Progress, Grid, Input } from 'semantic-ui-react';
+import React from 'react';
+import { Card, Progress, Grid } from 'semantic-ui-react';
 import { useStateValue } from "./StateProvider";
-import { db } from './firebase';
-import firebase from "firebase";
+import "./index.css";
 
 //displays the types of things you can get and pts and credit available
 export default function CurrentPoints() {
-    const [{ user, credit, points }, dispatch] = useStateValue();
+    const [{ credit, points }] = useStateValue();
     return (
         <Grid container>
-            <Grid.Row>
+            <Grid.Row className="points__container">
                 <Card>
                     <Card.Content>
-                        <Card.Header>Points Available</Card.Header>
-                        <Card.Meta>1pt = $5</Card.Meta>
-                        <Card.Description>
-                            <Progress warning total='30' value={points} progress='ratio' />
-                            <h5>Trade is points for Items
+                        <div >
+                            <Card.Header>Points Available</Card.Header>
+                            <Card.Meta>1pt = $5</Card.Meta>
+                            <Card.Description>
+                                <Progress warning total='30' value={points} progress='ratio' />
+                                <h5>Trade is points for Items
                                     <ul>
-                                    <li>10pts for Small Priced Item (ex: mug, pencils, stationary)</li>
-                                    <li>20pts for Medium Priced Item (ex: clothes, scientific calculators)</li>
-                                    <li>30pts for Large Priced Item (ex: textbooks)</li>
-                                </ul>
-                            </h5>
-                        </Card.Description>
+                                        <li>10pts for Small Priced Item (ex: mug, pencils, stationary)</li>
+                                        <li>20pts for Medium Priced Item (ex: clothes, scientific calculators)</li>
+                                        <li>30pts for Large Priced Item (ex: textbooks)</li>
+                                    </ul>
+                                </h5>
+                            </Card.Description>
+                        </div>
                     </Card.Content>
                 </Card>
             </Grid.Row>
-            <Grid.Row>
+            <Grid.Row className="points__container">
                 <Card>
                     <Card.Content>
                         <Card.Header>Credit Available</Card.Header>

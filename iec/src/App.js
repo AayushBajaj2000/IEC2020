@@ -2,13 +2,14 @@ import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css';
 import MainMenu from './mainComponents/menu';
 import Barcode from "./Barcode";
+import MainPage from "./MainPage";
 import CurrentPoints from './CurrentPoints';
 import BuyItems from './BuyItems';
 import MyAccount from './MyAccount';
 import { useStateValue } from "./StateProvider";
 
 function App() {
-  const [{ user, credit, points }, dispatch] = useStateValue();
+  const [{ user }] = useStateValue();
 
   return (
     <Router>
@@ -25,14 +26,12 @@ function App() {
                 <BuyItems />
               </div>
               :
-              <p>Welcome to UOIT contactless payments please login or sign up to start</p>
-
+              <MainPage />
           }
-
         </Route>
         <Route exact path='/myaccount'>
           {
-            user == null ? <p>Welcome to UOIT contactless payments please login or sign up to start</p> : <MyAccount />
+            user == null ? <MainPage /> : <MyAccount />
           }
         </Route>
 
@@ -41,7 +40,6 @@ function App() {
             <p>404 Page not found</p>
           </div>
         </Route>
-
       </Switch>
     </Router>
   );

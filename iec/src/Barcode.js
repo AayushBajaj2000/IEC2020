@@ -1,15 +1,18 @@
 import React from 'react';
 import { useStateValue } from "./StateProvider"
+import "./index.css";
 
 function Barcode() {
-    var ReactDOM = require('react-dom');
-    var Barcode = require('react-barcode');
-    const [{ user, credit, points }, dispatch] = useStateValue();
 
+    var Barcode = require('react-barcode');
+    const [{ user }] = useStateValue();
 
     return (
         <div>
-            <Barcode value={user?.Barcode_Number} />
+            <p style={{ textAlign: "center" }}>Please show the barcode given below to the cashier so that they can help you with the purchase</p>
+            <div className="barcode__container">
+                <Barcode value={user?.Barcode_Number} />
+            </div>
         </div>
     )
 }

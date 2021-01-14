@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Card, Statistic, Container, Button, Form, Progress, Grid, Input } from 'semantic-ui-react';
+import React from 'react';
+import { Card, Button, Grid } from 'semantic-ui-react';
 import { useStateValue } from "./StateProvider";
 import { db } from './firebase';
 
 export default function BuyItems() {
 
-    const [{ user, points, credit }, dispatch] = useStateValue();
+    const [{ user, points }, dispatch] = useStateValue();
     const smallTier = [{ item: "Pencil", price: 5 }, { item: "Calculator", price: 5 }, { item: "Mug", price: 5 }];
     const medTier = [{ item: "T-shirt", price: 15 }, { item: "Lab Coat", price: 12 }, { item: "Backpack", price: 14 }];
     const lgTier = [{ item: "Calculus Textbook", price: 25 }, { item: "Physics Textbook", price: 28 }, { item: "UOIT x Adidas Clothing", price: 30 }];
@@ -14,19 +14,24 @@ export default function BuyItems() {
         //get the user's points
         let usr = db.collection("Accounts").doc(user?.Barcode_Number.toString());
 
-        let newPoints = points - purchase;
-        if (newPoints > 0) {
-            //update account
-            usr.update({
-                Total_Points: newPoints
-            }).then(() => {
-                console.log("Updated pts");
+        if (purchase > points) {
+            alert("Insufficient points");
+        }
+        else {
+            let newPoints = points - purchase;
+            if (newPoints > 0) {
+                //update account
+                usr.update({
+                    Total_Points: newPoints
+                }).then(() => {
+                    console.log("Updated pts");
+                });
+            }
+            dispatch({
+                type: "Add_points",
+                item: newPoints
             });
         }
-        dispatch({
-            type: "Add_points",
-            item: newPoints
-        });
     }
 
     const mapItems = (list) => {
